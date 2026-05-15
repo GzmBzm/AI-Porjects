@@ -126,7 +126,7 @@ class WeatherApp {
             }
         });
 
-        function updateSelection() {
+        const updateSelection = () => {
             const items = suggestionsContainer.querySelectorAll('div[data-suggestion]');
             items.forEach((item, index) => {
                 if (index === this.selectedIndex) {
@@ -137,7 +137,7 @@ class WeatherApp {
                     item.classList.add('hover:bg-surface-container');
                 }
             });
-        }
+        };
 
         // Hide suggestions when clicking outside
         document.addEventListener('click', (e) => {
@@ -374,10 +374,6 @@ class WeatherApp {
 }
 
 // Initialize the weather app when DOM is loaded
-document.addEventListener('DOMContentLoaded', () => {
-    window.weatherApp = new WeatherApp();
-});content>
-// ...existing code...
 document.addEventListener('DOMContentLoaded', () => {
     window.weatherApp = new WeatherApp();
 });
