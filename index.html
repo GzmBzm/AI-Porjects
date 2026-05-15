@@ -131,7 +131,7 @@
 </div>
 <div class="flex items-center gap-unit-4">
 <div class="relative hidden sm:block">
-<input class="bg-surface-container border-none rounded-full px-unit-6 py-unit-2 text-body-sm font-body-sm focus:ring-2 focus:ring-primary-container w-64" placeholder="Search city..." type="text"/>
+<input class="bg-surface-container border-none rounded-full px-unit-6 py-unit-2 text-body-sm font-body-sm focus:ring-2 focus:ring-primary-container w-64" placeholder="Search city..." type="text" id="location-search"/>
 <span class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
 </div>
 <span class="material-symbols-outlined text-primary dark:text-inverse-primary cursor-pointer p-2 rounded-full hover:bg-surface-container transition-colors" data-icon="location_on">location_on</span>
@@ -192,15 +192,15 @@
 <div>
 <div class="flex items-center gap-unit-2 mb-unit-2">
 <span class="material-symbols-outlined text-primary" data-icon="location_on">location_on</span>
-<h1 class="text-headline-lg font-headline-lg text-slate-text">Adapazarı, Sakarya</h1>
+<h1 class="text-headline-lg font-headline-lg text-slate-text" id="current-location">Adapazarı, Sakarya</h1>
 </div>
-<p class="text-label-caps font-label-caps text-on-surface-variant">Friday, May 15 • 11:18 AM</p>
+<p class="text-label-caps font-label-caps text-on-surface-variant" id="current-time">Friday, May 15 • 11:18 AM</p>
 </div>
 <div class="flex items-end gap-unit-6 my-unit-8">
-<span class="text-display-temp font-display-temp text-slate-text">17°</span>
+<span class="text-display-temp font-display-temp text-slate-text" id="current-temperature">17°</span>
 <div class="pb-unit-4">
 <p class="text-headline-md font-headline-md text-primary">Mostly Cloudy</p>
-<p class="text-body-lg font-body-lg text-on-surface-variant">RealFeel® 24°</p>
+<p class="text-body-lg font-body-lg text-on-surface-variant" id="current-real-feel">RealFeel® 24°</p>
 </div>
 </div>
 <div class="grid grid-cols-2 sm:grid-cols-4 gap-unit-4">
@@ -208,14 +208,14 @@
 <span class="material-symbols-outlined text-primary" data-icon="air">air</span>
 <div>
 <p class="text-label-caps font-label-caps opacity-60">WIND</p>
-<p class="text-body-sm font-bold">2 km/h NNW</p>
+<p class="text-body-sm font-bold" id="current-wind-speed">2 km/h NNW</p>
 </div>
 </div>
 <div class="bg-surface-container-low p-unit-3 rounded-lg flex items-center gap-unit-2">
 <span class="material-symbols-outlined text-primary" data-icon="humidity_mid">humidity_mid</span>
 <div>
 <p class="text-label-caps font-label-caps opacity-60">HUMIDITY</p>
-<p class="text-body-sm font-bold">64%</p>
+<p class="text-body-sm font-bold" id="current-humidity">64%</p>
 </div>
 </div>
 <div class="bg-surface-container-low p-unit-3 rounded-lg flex items-center gap-unit-2">
@@ -247,7 +247,7 @@
 <button class="p-unit-1 rounded-full hover:bg-surface-container transition-colors"><span class="material-symbols-outlined">chevron_right</span></button>
 </div>
 </div>
-<div class="flex overflow-x-auto pb-unit-2 gap-unit-4 scrollbar-hide no-scrollbar">
+<div class="flex overflow-x-auto pb-unit-2 gap-unit-4 scrollbar-hide no-scrollbar" id="hourly-forecast-container">
 <div class="flex-shrink-0 w-24 flex flex-col items-center p-unit-4 bg-primary-container/10 rounded-xl border border-primary/20">
 <p class="text-label-caps font-label-caps text-on-surface-variant">NOW</p>
 <span class="material-symbols-outlined text-primary my-unit-2" data-icon="cloud">cloud</span>
@@ -308,60 +308,60 @@
 <h2 class="text-headline-md font-headline-md text-slate-text">10-Day Forecast</h2>
 <span class="text-label-caps font-label-caps text-primary cursor-pointer hover:underline">Full Outlook</span>
 </div>
-<div class="space-y-unit-4">
-<div class="flex items-center justify-between py-unit-3 border-b border-surface-container-low last:border-0 group cursor-pointer hover:bg-surface-container-lowest transition-colors px-unit-2 rounded-lg">
-<p class="w-20 font-bold text-body-lg">Today</p>
+<div class="space-y-unit-4" id="ten-day-forecast-container">
+<div class="flex items-center justify-between py-unit-3 border-b border-surface-container-low last:border-0 group cursor-pointer hover:bg-surface-container-lowest transition-colors px-unit-2 rounded-lg day-forecast-row">
+<p class="w-20 font-bold text-body-lg forecast-day">Today</p>
 <div class="flex items-center gap-unit-4 flex-1">
 <span class="material-symbols-outlined text-primary" data-icon="wb_sunny">wb_sunny</span>
 <p class="text-body-sm text-on-surface-variant hidden sm:block">Partly sunny and pleasant</p>
 </div>
 <div class="flex gap-unit-4 text-right">
-<span class="font-bold text-body-lg">22°</span>
-<span class="text-on-surface-variant text-body-lg">10°</span>
+<span class="font-bold text-body-lg forecast-high">22°</span>
+<span class="text-on-surface-variant text-body-lg forecast-low">10°</span>
 </div>
 </div>
-<div class="flex items-center justify-between py-unit-3 border-b border-surface-container-low last:border-0 group cursor-pointer hover:bg-surface-container-lowest transition-colors px-unit-2 rounded-lg">
-<p class="w-20 font-bold text-body-lg">Sat</p>
+<div class="flex items-center justify-between py-unit-3 border-b border-surface-container-low last:border-0 group cursor-pointer hover:bg-surface-container-lowest transition-colors px-unit-2 rounded-lg day-forecast-row">
+<p class="w-20 font-bold text-body-lg forecast-day">Sat</p>
 <div class="flex items-center gap-unit-4 flex-1">
 <span class="material-symbols-outlined text-primary" data-icon="wb_sunny">wb_sunny</span>
 <p class="text-body-sm text-on-surface-variant hidden sm:block">Mostly sunny and warmer</p>
 </div>
 <div class="flex gap-unit-4 text-right">
-<span class="font-bold text-body-lg">27°</span>
-<span class="text-on-surface-variant text-body-lg">15°</span>
+<span class="font-bold text-body-lg forecast-high">27°</span>
+<span class="text-on-surface-variant text-body-lg forecast-low">15°</span>
 </div>
 </div>
-<div class="flex items-center justify-between py-unit-3 border-b border-surface-container-low last:border-0 group cursor-pointer hover:bg-surface-container-lowest transition-colors px-unit-2 rounded-lg">
-<p class="w-20 font-bold text-body-lg">Sun</p>
+<div class="flex items-center justify-between py-unit-3 border-b border-surface-container-low last:border-0 group cursor-pointer hover:bg-surface-container-lowest transition-colors px-unit-2 rounded-lg day-forecast-row">
+<p class="w-20 font-bold text-body-lg forecast-day">Sun</p>
 <div class="flex items-center gap-unit-4 flex-1">
 <span class="material-symbols-outlined text-primary" data-icon="rainy">rainy</span>
 <p class="text-body-sm text-on-surface-variant hidden sm:block">A couple of afternoon showers</p>
 </div>
 <div class="flex gap-unit-4 text-right">
-<span class="font-bold text-body-lg">24°</span>
-<span class="text-on-surface-variant text-body-lg">13°</span>
+<span class="font-bold text-body-lg forecast-high">24°</span>
+<span class="text-on-surface-variant text-body-lg forecast-low">13°</span>
 </div>
 </div>
-<div class="flex items-center justify-between py-unit-3 border-b border-surface-container-low last:border-0 group cursor-pointer hover:bg-surface-container-lowest transition-colors px-unit-2 rounded-lg">
-<p class="w-20 font-bold text-body-lg">Mon</p>
+<div class="flex items-center justify-between py-unit-3 border-b border-surface-container-low last:border-0 group cursor-pointer hover:bg-surface-container-lowest transition-colors px-unit-2 rounded-lg day-forecast-row">
+<p class="w-20 font-bold text-body-lg forecast-day">Mon</p>
 <div class="flex items-center gap-unit-4 flex-1">
 <span class="material-symbols-outlined text-primary" data-icon="cloud">cloud</span>
 <p class="text-body-sm text-on-surface-variant hidden sm:block">Partly sunny, increasing clouds</p>
 </div>
 <div class="flex gap-unit-4 text-right">
-<span class="font-bold text-body-lg">20°</span>
-<span class="text-on-surface-variant text-body-lg">12°</span>
+<span class="font-bold text-body-lg forecast-high">20°</span>
+<span class="text-on-surface-variant text-body-lg forecast-low">12°</span>
 </div>
 </div>
-<div class="flex items-center justify-between py-unit-3 border-b border-surface-container-low last:border-0 group cursor-pointer hover:bg-surface-container-lowest transition-colors px-unit-2 rounded-lg">
-<p class="w-20 font-bold text-body-lg">Tue</p>
+<div class="flex items-center justify-between py-unit-3 border-b border-surface-container-low last:border-0 group cursor-pointer hover:bg-surface-container-lowest transition-colors px-unit-2 rounded-lg day-forecast-row">
+<p class="w-20 font-bold text-body-lg forecast-day">Tue</p>
 <div class="flex items-center gap-unit-4 flex-1">
 <span class="material-symbols-outlined text-primary" data-icon="rainy">rainy</span>
 <p class="text-body-sm text-on-surface-variant hidden sm:block">Afternoon showers</p>
 </div>
 <div class="flex gap-unit-4 text-right">
-<span class="font-bold text-body-lg">24°</span>
-<span class="text-on-surface-variant text-body-lg">14°</span>
+<span class="font-bold text-body-lg forecast-high">24°</span>
+<span class="text-on-surface-variant text-body-lg forecast-low">14°</span>
 </div>
 </div>
 </div>
@@ -505,4 +505,5 @@
 <span class="text-[10px] font-bold">Setup</span>
 </div>
 </nav>
+<script src="weather.js"></script>
 </body></html>
