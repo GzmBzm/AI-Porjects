@@ -72,8 +72,9 @@ class WeatherApp {
         if (!searchInput) return;
 
         let searchTimeout;
+        let selectedIndex = -1;
         const suggestionsContainer = document.createElement('div');
-        suggestionsContainer.className = 'absolute top-full left-0 right-0 bg-white border border-outline-variant rounded-lg shadow-lg z-50 max-h-60 overflow-y-auto mt-1';
+        suggestionsContainer.className = 'absolute top-full left-0 right-0 bg-surface border border-outline rounded-lg shadow-lg z-50 max-h-60 overflow-y-auto mt-1';
         suggestionsContainer.style.display = 'none';
         searchInput.parentElement.appendChild(suggestionsContainer);
 
@@ -86,27 +87,83 @@ class WeatherApp {
                 return;
             }
 
+            // Show loading state
+            suggestionsContainer.innerHTML = '<div class="p-3 text-on-surface-variant">Searching...</div>';
+            suggestionsContainer.style.display = 'block';
+
             searchTimeout = setTimeout(async () => {
                 try {
                     const results = await this.geocodeLocation(query);
                     this.showSuggestions(results, suggestionsContainer, searchInput);
                 } catch (error) {
                     console.error('Geocoding failed:', error);
-                    suggestionsContainer.style.display = 'none';
+                    suggestionsContainer.innerHTML = '<div class="p-3 text-error">Search failed. Please try again.</div>';
+                    suggestionsContainer.style.display = 'block';
+                    setTimeout(() => {
+                        suggestionsContainer.style.display = 'none';
+                    }, 2000);
                 }
             }, 300);
         });
+
+        let selectedIndex = -1;
+
+        searchInput.addEventListener('keydown', (e) => {
+            const items = suggestionsContainer.querySelectorAll('div[data-suggestion]');
+            
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                selectedIndex = Math.min(selectedIndex + 1, items.length - 1);
+                updateSelection();
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                selectedIndex = Math.max(selectedIndex - 1, -1);
+                updateSelection();
+            } else if (e.key === 'Enter' && selectedIndex >= 0) {
+                e.preventDefault();
+                items[selectedIndex].click();
+            } else if (e.key === 'Escape') {
+                suggestionsContainer.style.display = 'none';
+                selectedIndex = -1;
+            }
+        });
+
+        function updateSelection() {
+            const items = suggestionsContainer.querySelectorAll('div[data-suggestion]');
+            items.forEach((item, index) => {
+                if (index === selectedIndex) {
+                    item.classList.add('bg-primary-container');
+                    item.classList.remove('hover:bg-surface-container');
+                } else {
+                    item.classList.remove('bg-primary-container');
+                    item.classList.add('hover:bg-surface-container');
+                }
+            });
+        }
 
         // Hide suggestions when clicking outside
         document.addEventListener('click', (e) => {
             if (!searchInput.contains(e.target) && !suggestionsContainer.contains(e.target)) {
                 suggestionsContainer.style.display = 'none';
+                selectedIndex = -1;
+            }
+        });
+
+        // Reset selection when input is focused
+        searchInput.addEventListener('focus', () => {
+            if (searchInput.value.trim().length >= 2) {
+                // Re-show suggestions if we have a query
+                const query = searchInput.value.trim();
+                this.geocodeLocation(query)
+                    .then(results => this.showSuggestions(results, suggestionsContainer, searchInput))
+                    .catch(() => {});
             }
         });
     }
 
     showSuggestions(results, container, input) {
         container.innerHTML = '';
+        selectedIndex = -1; // Reset selection
 
         if (results.length === 0) {
             container.innerHTML = '<div class="p-3 text-on-surface-variant">No locations found</div>';
@@ -114,17 +171,29 @@ class WeatherApp {
             return;
         }
 
-        results.forEach(result => {
+        results.forEach((result, index) => {
             const item = document.createElement('div');
-            item.className = 'p-3 hover:bg-surface-container cursor-pointer border-b border-surface-container-low last:border-0';
+            item.className = 'p-3 hover:bg-surface-container cursor-pointer border-b border-surface-container-low last:border-0 transition-colors';
+            item.setAttribute('data-suggestion', index);
             item.innerHTML = `
-                <div class="font-medium">${result.name}</div>
-                <div class="text-sm text-on-surface-variant">${result.admin1 || ''}, ${result.country}</div>
+                <div class="font-medium text-on-surface">${result.name}</div>
+                <div class="text-sm text-on-surface-variant">
+                    ${result.admin1 && result.admin1 !== result.name ? result.admin1 + ', ' : ''}${result.country}
+                </div>
             `;
 
             item.addEventListener('click', () => {
+                // Format location name properly
+                let locationName = result.name;
+                if (result.admin1 && result.admin1 !== result.name) {
+                    locationName += `, ${result.admin1}`;
+                }
+                if (result.country) {
+                    locationName += `, ${result.country}`;
+                }
+
                 this.currentLocation = {
-                    name: `${result.name}, ${result.admin1 || result.country}`,
+                    name: locationName,
                     lat: result.latitude,
                     lon: result.longitude
                 };
