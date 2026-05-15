@@ -11,6 +11,7 @@ class WeatherApp {
             lon: 30.4000
         };
         this.weatherData = null;
+        this.selectedIndex = -1; // Add as class property
         this.init();
     }
 
@@ -72,7 +73,6 @@ class WeatherApp {
         if (!searchInput) return;
 
         let searchTimeout;
-        let selectedIndex = -1;
         const suggestionsContainer = document.createElement('div');
         suggestionsContainer.className = 'absolute top-full left-0 right-0 bg-surface border border-outline rounded-lg shadow-lg z-50 max-h-60 overflow-y-auto mt-1';
         suggestionsContainer.style.display = 'none';
@@ -106,32 +106,30 @@ class WeatherApp {
             }, 300);
         });
 
-        let selectedIndex = -1;
-
         searchInput.addEventListener('keydown', (e) => {
             const items = suggestionsContainer.querySelectorAll('div[data-suggestion]');
             
             if (e.key === 'ArrowDown') {
                 e.preventDefault();
-                selectedIndex = Math.min(selectedIndex + 1, items.length - 1);
+                this.selectedIndex = Math.min(this.selectedIndex + 1, items.length - 1);
                 updateSelection();
             } else if (e.key === 'ArrowUp') {
                 e.preventDefault();
-                selectedIndex = Math.max(selectedIndex - 1, -1);
+                this.selectedIndex = Math.max(this.selectedIndex - 1, -1);
                 updateSelection();
-            } else if (e.key === 'Enter' && selectedIndex >= 0) {
+            } else if (e.key === 'Enter' && this.selectedIndex >= 0) {
                 e.preventDefault();
-                items[selectedIndex].click();
+                items[this.selectedIndex].click();
             } else if (e.key === 'Escape') {
                 suggestionsContainer.style.display = 'none';
-                selectedIndex = -1;
+                this.selectedIndex = -1;
             }
         });
 
         function updateSelection() {
             const items = suggestionsContainer.querySelectorAll('div[data-suggestion]');
             items.forEach((item, index) => {
-                if (index === selectedIndex) {
+                if (index === this.selectedIndex) {
                     item.classList.add('bg-primary-container');
                     item.classList.remove('hover:bg-surface-container');
                 } else {
@@ -145,7 +143,7 @@ class WeatherApp {
         document.addEventListener('click', (e) => {
             if (!searchInput.contains(e.target) && !suggestionsContainer.contains(e.target)) {
                 suggestionsContainer.style.display = 'none';
-                selectedIndex = -1;
+                this.selectedIndex = -1;
             }
         });
 
@@ -163,7 +161,7 @@ class WeatherApp {
 
     showSuggestions(results, container, input) {
         container.innerHTML = '';
-        selectedIndex = -1; // Reset selection
+        this.selectedIndex = -1; // Reset selection
 
         if (results.length === 0) {
             container.innerHTML = '<div class="p-3 text-on-surface-variant">No locations found</div>';
@@ -378,5 +376,8 @@ class WeatherApp {
 // Initialize the weather app when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
     window.weatherApp = new WeatherApp();
-});</content>
-<parameter name="filePath">c:\AI-Porjects\weather.js
+});content>
+// ...existing code...
+document.addEventListener('DOMContentLoaded', () => {
+    window.weatherApp = new WeatherApp();
+});
