@@ -498,8 +498,8 @@
 <button class="bg-white/20 hover:bg-white/30 px-unit-4 py-unit-2 rounded-lg text-label-caps font-label-caps transition-colors">Details</button>
 </div>
 <!-- Hero Section: Current Weather -->
-<section class="relative bg-white rounded-xl shadow-sm overflow-hidden min-h-[400px] flex flex-col md:flex-row">
-<div class="flex-1 p-unit-8 flex flex-col justify-between relative z-10">
+<section class="relative bg-white rounded-xl shadow-sm overflow-hidden min-h-[420px] grid grid-cols-1 md:grid-cols-[1.7fr_1fr] gap-unit-4">
+<div class="p-unit-8 flex flex-col justify-between gap-unit-6">
 <div>
 <div class="flex items-center gap-unit-2 mb-unit-2">
 <span class="material-symbols-outlined text-primary" data-icon="location_on">location_on</span>
@@ -510,43 +510,67 @@
 <div class="flex items-end gap-unit-6 my-unit-8">
 <span class="text-display-temp font-display-temp text-slate-text" id="current-temperature">17°</span>
 <div class="pb-unit-4">
-<p class="text-headline-md font-headline-md text-primary">Mostly Cloudy</p>
+<p class="text-headline-md font-headline-md text-primary" id="current-condition">Mostly Cloudy</p>
 <p class="text-body-lg font-body-lg text-on-surface-variant" id="current-real-feel">RealFeel® 24°</p>
 </div>
 </div>
-<div class="grid grid-cols-2 sm:grid-cols-4 gap-unit-4">
-<div class="bg-surface-container-low p-unit-3 rounded-lg flex items-center gap-unit-2">
-<span class="material-symbols-outlined text-primary" data-icon="air">air</span>
+<div class="grid grid-cols-2 gap-unit-4">
+<div class="bg-surface-container-low p-unit-4 rounded-3xl">
+<p class="text-label-caps font-label-caps opacity-60">High / Low</p>
+<div class="flex items-end gap-unit-2 mt-unit-2">
+<span class="text-headline-md font-bold" id="today-high">22°</span>
+<span class="text-on-surface-variant">/</span>
+<span class="text-headline-md font-bold text-on-surface-variant" id="today-low">10°</span>
+</div>
+</div>
+<div class="bg-surface-container-low p-unit-4 rounded-3xl">
+<p class="text-label-caps font-label-caps opacity-60">Rain</p>
+<p class="text-headline-md font-bold mt-unit-2" id="today-precipitation">0.0 mm</p>
+</div>
+<div class="bg-surface-container-low p-unit-4 rounded-3xl">
+<p class="text-label-caps font-label-caps opacity-60">Air Pollution</p>
+<p class="text-headline-md font-bold mt-unit-2" id="today-aqi-status">Loading...</p>
+<p class="text-body-sm font-body-sm text-on-surface-variant mt-unit-1" id="today-aqi-value">PM2.5 • --</p>
+</div>
+<div class="bg-surface-container-low p-unit-4 rounded-3xl">
+<p class="text-label-caps font-label-caps opacity-60">Precipitation</p>
+<p class="text-headline-md font-bold mt-unit-2" id="today-precip-details">--</p>
+</div>
+</div>
+</div>
+<div class="p-unit-8 bg-surface-container rounded-xl shadow-sm flex flex-col justify-between gap-unit-6">
 <div>
-<p class="text-label-caps font-label-caps opacity-60">WIND</p>
-<p class="text-body-sm font-bold" id="current-wind-speed">2 km/h NNW</p>
-</div>
-</div>
-<div class="bg-surface-container-low p-unit-3 rounded-lg flex items-center gap-unit-2">
-<span class="material-symbols-outlined text-primary" data-icon="humidity_mid">humidity_mid</span>
+<div class="flex items-center justify-between gap-unit-4 mb-unit-4">
 <div>
-<p class="text-label-caps font-label-caps opacity-60">HUMIDITY</p>
-<p class="text-body-sm font-bold" id="current-humidity">64%</p>
+<p class="text-label-caps font-label-caps text-on-surface-variant">Moon Phase</p>
+<h2 class="text-headline-lg font-headline-lg text-primary" id="moon-phase-name">Waxing Gibbous</h2>
+</div>
+<span class="material-symbols-outlined text-primary text-4xl">nights_stay</span>
+</div>
+<div class="grid grid-cols-2 gap-unit-4">
+<div class="bg-white rounded-3xl p-unit-4 shadow-sm">
+<p class="text-label-caps font-label-caps text-on-surface-variant">Illumination</p>
+<p class="text-body-lg font-bold mt-unit-2" id="moon-illumination">94%</p>
+</div>
+<div class="bg-white rounded-3xl p-unit-4 shadow-sm">
+<p class="text-label-caps font-label-caps text-on-surface-variant">Age</p>
+<p class="text-body-lg font-bold mt-unit-2" id="moon-age">12.4 days</p>
+</div>
+<div class="bg-white rounded-3xl p-unit-4 shadow-sm">
+<p class="text-label-caps font-label-caps text-on-surface-variant">Waxing</p>
+<p class="text-body-lg font-bold mt-unit-2" id="moon-waxing">Yes</p>
+</div>
+<div class="bg-white rounded-3xl p-unit-4 shadow-sm">
+<p class="text-label-caps font-label-caps text-on-surface-variant">Special Moon</p>
+<p class="text-body-lg font-bold mt-unit-2" id="moon-special">Blue Moon</p>
 </div>
 </div>
-<div class="bg-surface-container-low p-unit-3 rounded-lg flex items-center gap-unit-2">
-<span class="material-symbols-outlined text-primary" data-icon="compress">compress</span>
-<div>
-<p class="text-label-caps font-label-caps opacity-60">PRESSURE</p>
-<p class="text-body-sm font-bold">1012 mb</p>
 </div>
+<div class="bg-white rounded-3xl p-unit-4 shadow-sm overflow-hidden">
+<div id="moon-svg-container" class="h-64 flex items-center justify-center"></div>
+<p class="text-label-caps font-label-caps text-on-surface-variant mt-unit-4">Moon timestamp</p>
+<p class="text-body-sm text-on-surface-variant mt-unit-1" id="moon-timestamp">2023-10-27T14:30:00Z</p>
 </div>
-<div class="bg-surface-container-low p-unit-3 rounded-lg flex items-center gap-unit-2">
-<span class="material-symbols-outlined text-primary" data-icon="wb_sunny">wb_sunny</span>
-<div>
-<p class="text-label-caps font-label-caps opacity-60">UV INDEX</p>
-<p class="text-body-sm font-bold">4 Moderate</p>
-</div>
-</div>
-</div>
-</div>
-<div class="w-full md:w-1/2 h-64 md:h-auto bg-cover bg-center relative hero-illustration">
-<div class="absolute inset-0 bg-gradient-to-r from-white via-white/20 to-transparent md:block hidden"></div>
 </div>
 </section>
 <!-- Hourly Forecast Bar -->
@@ -798,7 +822,8 @@ Loading current air quality data.
 class WeatherApp {
     constructor() {
         this.apiBase = 'https://api.open-meteo.com/v1/forecast';
-        this.geocodeBase = 'https://geocoding-api.open-meteo.com/v1/search';
+        this.geocodeBase = 'https://api.openweathermap.org/geo/1.0/direct';
+        this.moonPhaseBase = 'https://api.example.com/moonphase';
         this.openWeatherApiKey = 'REPLACE_WITH_YOUR_OPENWEATHER_API_KEY';
         this.currentLocation = {
             name: 'Adapazarı, Sakarya',
@@ -807,19 +832,22 @@ class WeatherApp {
         };
         this.weatherData = null;
         this.airQualityData = null;
+        this.moonPhaseData = null;
         this.selectedIndex = -1;
         this.init();
     }
 
     async init() {
         try {
-            const [weatherData, airQualityData] = await Promise.all([
+            const [weatherData, airQualityData, moonPhaseData] = await Promise.all([
                 this.fetchWeather(this.currentLocation.lat, this.currentLocation.lon),
-                this.fetchAirQuality(this.currentLocation.lat, this.currentLocation.lon)
+                this.fetchAirQuality(this.currentLocation.lat, this.currentLocation.lon),
+                this.fetchMoonPhase(this.currentLocation.lat, this.currentLocation.lon)
             ]);
 
             this.weatherData = weatherData;
             this.airQualityData = airQualityData;
+            this.moonPhaseData = moonPhaseData;
             this.updateUI();
         } catch (error) {
             console.error('Initial weather fetch failed:', error);
@@ -877,12 +905,56 @@ class WeatherApp {
         return await response.json();
     }
 
+    async fetchMoonPhase(lat, lon) {
+        if (!this.moonPhaseBase || this.moonPhaseBase.includes('example')) {
+            return this.buildMoonPhaseFallback();
+        }
+
+        const url = new URL(this.moonPhaseBase);
+        url.search = new URLSearchParams({
+            lat,
+            lon,
+            apikey: this.openWeatherApiKey
+        });
+
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error(`Moon Phase API error: ${response.status}`);
+        }
+
+        return await response.json();
+    }
+
+    buildMoonPhaseFallback() {
+        return {
+            timestamp: new Date().toISOString(),
+            phase: {
+                name: 'Waxing Gibbous',
+                illumination: 0.94,
+                age_days: 12.4,
+                is_waxing: true
+            },
+            moon_visual: {
+                type: 'svg',
+                svg: '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="moonGlow"><stop offset="0%" stop-color="#fff" stop-opacity="0.9"/><stop offset="80%" stop-color="#8ca77b" stop-opacity="0.08"/></radialGradient></defs><circle cx="50" cy="50" r="34" fill="url(#moonGlow)"/><circle cx="55" cy="50" r="30" fill="#f8f4e6"/><path d="M55 20 A30 30 0 1 1 55 80 A24 30 0 1 0 55 20 Z" fill="rgba(138,167,123,0.2)"/></svg>'
+            },
+            special_moon: {
+                is_supermoon: false,
+                is_blue_moon: true,
+                labels: ['Blue Moon']
+            }
+        };
+    }
+
     async geocodeLocation(locationName) {
+        if (!this.openWeatherApiKey || this.openWeatherApiKey.includes('REPLACE_WITH')) {
+            throw new Error('OpenWeather API key required for geocoding.');
+        }
+
         const params = new URLSearchParams({
-            name: locationName,
-            count: 5,
-            language: 'en',
-            format: 'json'
+            q: locationName,
+            limit: 8,
+            appid: this.openWeatherApiKey
         });
 
         const response = await fetch(`${this.geocodeBase}?${params}`);
@@ -892,10 +964,17 @@ class WeatherApp {
         }
 
         const data = await response.json();
-        return data.results || [];
+        return (data || []).map(item => ({
+            name: item.name,
+            admin1: item.state,
+            country: item.country,
+            latitude: item.lat,
+            longitude: item.lon
+        }));
     }
 
-    setupSearch() {
+    setupSearch() 
+    {
         const searchInput = document.getElementById('location-search');
         if (!searchInput) return;
 
@@ -977,12 +1056,14 @@ class WeatherApp {
 
                         return Promise.all([
                             this.fetchWeather(this.currentLocation.lat, this.currentLocation.lon),
-                            this.fetchAirQuality(this.currentLocation.lat, this.currentLocation.lon)
+                            this.fetchAirQuality(this.currentLocation.lat, this.currentLocation.lon),
+                            this.fetchMoonPhase(this.currentLocation.lat, this.currentLocation.lon)
                         ]);
                     })
-                    .then(([weatherData, airQualityData]) => {
+                    .then(([weatherData, airQualityData, moonPhaseData]) => {
                         this.weatherData = weatherData;
                         this.airQualityData = airQualityData;
+                        this.moonPhaseData = moonPhaseData;
                         this.updateUI();
                     })
                     .catch(err => {
@@ -1025,7 +1106,8 @@ class WeatherApp {
         });
     }
 
-    showSuggestions(results, container, input) {
+    showSuggestions(results, container, input) 
+    {
         container.innerHTML = '';
         this.selectedIndex = -1;
 
@@ -1067,11 +1149,13 @@ class WeatherApp {
 
                 Promise.all([
                     this.fetchWeather(this.currentLocation.lat, this.currentLocation.lon),
-                    this.fetchAirQuality(this.currentLocation.lat, this.currentLocation.lon)
+                    this.fetchAirQuality(this.currentLocation.lat, this.currentLocation.lon),
+                    this.fetchMoonPhase(this.currentLocation.lat, this.currentLocation.lon)
                 ])
-                    .then(([weatherData, airQualityData]) => {
+                    .then(([weatherData, airQualityData, moonPhaseData]) => {
                         this.weatherData = weatherData;
                         this.airQualityData = airQualityData;
+                        this.moonPhaseData = moonPhaseData;
                         this.updateUI();
                     })
                     .catch(error => {
@@ -1093,23 +1177,34 @@ class WeatherApp {
         this.updateHourlyForecast();
         this.updateTenDayForecast();
         this.updateAirQuality();
-        this.updateSunMoon();
+        this.updateMoonPhase();
         this.updateLocationDisplay();
     }
 
     updateCurrentWeather() {
         const current = this.weatherData.current_weather || this.weatherData.current || {};
         const hourly = this.weatherData.hourly || {};
+        const daily = this.weatherData.daily || {};
         const index = this.findCurrentHourIndex(hourly);
 
         const temp = current.temperature ?? current.temperature_2m ?? (hourly.temperature_2m?.[index] ?? 0);
         const humidity = current.relative_humidity_2m ?? (hourly.relative_humidity_2m?.[index] ?? '--');
         const apparent = current.apparent_temperature ?? (hourly.apparent_temperature?.[index] ?? '--');
         const windSpeed = current.wind_speed_10m ?? (hourly.wind_speed_10m?.[index] ?? '--');
+        const condition = this.weatherCodeToSummary(current.weathercode ?? hourly.weathercode?.[index] ?? 0);
+        const high = daily.temperature_2m_max?.[0];
+        const low = daily.temperature_2m_min?.[0];
+        const precipitation = daily.precipitation_sum?.[0] ?? daily.rain_sum?.[0] ?? 0;
+        const precipitationChance = daily.precipitation_probability_max?.[0];
 
         const tempElement = document.getElementById('current-temperature');
         if (tempElement) {
             tempElement.textContent = typeof temp === 'number' ? Math.round(temp) : temp;
+        }
+
+        const conditionElement = document.getElementById('current-condition');
+        if (conditionElement) {
+            conditionElement.textContent = condition;
         }
 
         const windElement = document.getElementById('current-wind-speed');
@@ -1125,6 +1220,26 @@ class WeatherApp {
         const realFeelElement = document.getElementById('current-real-feel');
         if (realFeelElement) {
             realFeelElement.textContent = typeof apparent === 'number' ? `RealFeel® ${Math.round(apparent)}°` : `RealFeel® ${apparent}`;
+        }
+
+        const highElement = document.getElementById('today-high');
+        if (highElement) {
+            highElement.textContent = high != null ? `${Math.round(high)}°` : '--';
+        }
+
+        const lowElement = document.getElementById('today-low');
+        if (lowElement) {
+            lowElement.textContent = low != null ? `${Math.round(low)}°` : '--';
+        }
+
+        const precipitationElement = document.getElementById('today-precipitation');
+        if (precipitationElement) {
+            precipitationElement.textContent = `${precipitation != null ? precipitation.toFixed(1) : '0.0'} mm`;
+        }
+
+        const precipitationDetails = document.getElementById('today-precip-details');
+        if (precipitationDetails) {
+            precipitationDetails.textContent = typeof precipitationChance === 'number' ? `Chance ${Math.round(precipitationChance)}%` : 'Forecast available';
         }
 
         const timeElement = document.getElementById('current-time');
@@ -1217,6 +1332,8 @@ class WeatherApp {
         const statusElement = document.getElementById('air-quality-status');
         const summaryElement = document.getElementById('air-quality-summary');
         const valueElement = document.getElementById('air-quality-value');
+        const leftStatusElement = document.getElementById('today-aqi-status');
+        const leftValueElement = document.getElementById('today-aqi-value');
         if (!statusElement || !summaryElement || !valueElement) return;
 
         if (!this.airQualityData || !this.airQualityData.list || this.airQualityData.list.length === 0) {
@@ -1224,6 +1341,8 @@ class WeatherApp {
             statusElement.className = 'text-headline-lg font-headline-lg text-on-surface-variant';
             summaryElement.textContent = 'Air quality data is not available for this location.';
             valueElement.textContent = '--';
+            if (leftStatusElement) leftStatusElement.textContent = 'Unavailable';
+            if (leftValueElement) leftValueElement.textContent = 'PM2.5 • --';
             return;
         }
 
@@ -1239,6 +1358,31 @@ class WeatherApp {
         statusElement.className = `text-headline-lg font-headline-lg ${aqi.colorClass}`;
         summaryElement.textContent = aqi.message;
         valueElement.textContent = pm25 != null ? `${Math.round(pm25)} μg/m³` : '--';
+
+        if (leftStatusElement) leftStatusElement.textContent = aqi.label;
+        if (leftValueElement) leftValueElement.textContent = pm25 != null ? `PM2.5 • ${Math.round(pm25)} μg/m³` : 'PM2.5 • --';
+    }
+
+    updateMoonPhase() {
+        const moonData = this.moonPhaseData || this.buildMoonPhaseFallback();
+        const phase = moonData.phase || {};
+        const specialMoon = moonData.special_moon || {};
+
+        const phaseElement = document.getElementById('moon-phase-name');
+        const illuminationElement = document.getElementById('moon-illumination');
+        const ageElement = document.getElementById('moon-age');
+        const waxingElement = document.getElementById('moon-waxing');
+        const specialElement = document.getElementById('moon-special');
+        const timestampElement = document.getElementById('moon-timestamp');
+        const svgContainer = document.getElementById('moon-svg-container');
+
+        if (phaseElement) phaseElement.textContent = phase.name || 'Unavailable';
+        if (illuminationElement) illuminationElement.textContent = phase.illumination != null ? `${Math.round(phase.illumination * 100)}%` : '--';
+        if (ageElement) ageElement.textContent = phase.age_days != null ? `${phase.age_days.toFixed(1)} days` : '--';
+        if (waxingElement) waxingElement.textContent = phase.is_waxing ? 'Yes' : 'No';
+        if (specialElement) specialElement.textContent = specialMoon.labels ? specialMoon.labels.join(', ') : 'None';
+        if (timestampElement) timestampElement.textContent = moonData.timestamp || '--';
+        if (svgContainer) svgContainer.innerHTML = moonData.moon_visual?.svg || '<div class="text-on-surface-variant">No moon graphic available.</div>';
     }
 
     updateSunMoon() {
