@@ -86,25 +86,36 @@
 <style>
         :root {
             --bg-main: #f3f0e8;
-            --bg-accent: rgba(255,255,255,0.45);
-            --bg-card: rgba(255,255,255,0.72);
+            --bg-card: rgba(250,247,241,0.72);
+            --bg-panel: rgba(255,255,255,0.55);
+            --bg-hover: #e4ecdf;
+            --sage: #8ca77b;
+            --moss: #678756;
+            --forest: #3e5f4a;
+            --deep-forest: #2a4032;
+            --wine: #7a2f35;
+            --berry: #571f22;
+            --crimson: #8a0418;
+            --gold: #d7b46a;
+            --gold-light: #ead8a7;
             --text-primary: #2e342d;
             --text-secondary: #5f665c;
-            --text-muted: #8b8f84;
-            --shadow-soft: 0 10px 30px rgba(62, 95, 74, 0.08);
-            --shadow-dreamy: 0 10px 30px rgba(62, 95, 74, 0.14);
+            --text-muted: #7e846f;
+            --shadow-soft: 0 10px 30px rgba(62,95,74,0.14);
+            --transition: all 0.35s ease;
         }
 
-        .material-symbols-outlined {
-            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        * {
+            box-sizing: border-box;
         }
 
         body {
             font-family: 'Inter', sans-serif;
-            background: linear-gradient(rgba(255,255,255,0.25), rgba(255,255,255,0.15)), var(--bg-main);
+            background: radial-gradient(circle at top, rgba(215,180,106,0.14), transparent 20%), linear-gradient(180deg, #f5efe2 0%, #e8e2d4 65%, #d7c8a8 100%);
             color: var(--text-primary);
             min-height: 100vh;
             overflow-x: hidden;
+            position: relative;
         }
 
         body::before {
@@ -116,29 +127,317 @@
             z-index: -1;
         }
 
-        header,
-        aside,
-        main,
-        footer,
+        .page-shell {
+            position: relative;
+            z-index: 0;
+            min-height: 100vh;
+        }
+
+        .fog-layer {
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 20% 30%, rgba(255,255,255,0.14), transparent 22%), radial-gradient(circle at 80% 70%, rgba(255,255,255,0.08), transparent 18%);
+            opacity: 0.34;
+            pointer-events: none;
+            animation: driftFog 35s ease-in-out infinite;
+            z-index: 0;
+        }
+
+        @keyframes driftFog {
+            0%, 100% { transform: translate(0, 0); }
+            50% { transform: translate(8px, -12px); }
+        }
+
+        .particle {
+            position: absolute;
+            width: 0.75rem;
+            height: 0.75rem;
+            border-radius: 50%;
+            background: rgba(215,180,106,0.22);
+            box-shadow: 0 0 12px rgba(215,180,106,0.22);
+            animation: floatParticle 22s linear infinite;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        @keyframes floatParticle {
+            0% { transform: translateY(0) scale(0.8); opacity: 0.2; }
+            100% { transform: translateY(-28px) scale(1.1); opacity: 0.05; }
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            color: var(--forest);
+        }
+
+        header {
+            background: rgba(250,247,241,0.84);
+            backdrop-filter: blur(18px);
+            border-bottom: 1px solid rgba(215,180,106,0.24);
+            box-shadow: 0 18px 48px rgba(62,95,74,0.06);
+            z-index: 50;
+        }
+
+        header .text-headline-md,
+        header .text-primary {
+            color: var(--deep-forest) !important;
+        }
+
+        header nav a {
+            color: var(--forest) !important;
+            transition: var(--transition);
+        }
+
+        header nav a:hover,
+        header nav a.active {
+            color: var(--text-light) !important;
+            background: linear-gradient(135deg, #8ca77b, #678756, #3e5f4a);
+            border-radius: 999px;
+            padding: 0.5rem 0.9rem;
+        }
+
+        .location-input {
+            background: rgba(255,255,255,0.72) !important;
+            border: 1px solid rgba(138,167,123,0.24) !important;
+            color: var(--text-primary) !important;
+            box-shadow: inset 0 0 0 1px rgba(255,255,255,0.55);
+        }
+
+        .location-input:focus {
+            border-color: rgba(138,167,123,0.8) !important;
+            box-shadow: 0 0 0 6px rgba(138,167,123,0.12) !important;
+            background: rgba(255,255,255,0.95) !important;
+        }
+
+        aside {
+            background: rgba(250,247,241,0.82) !important;
+            backdrop-filter: blur(18px);
+            border-right: 1px solid rgba(215,180,106,0.24) !important;
+            box-shadow: 10px 0 40px rgba(62,95,74,0.06);
+        }
+
+        aside .bg-primary-container,
+        aside a.active,
+        aside button {
+            background: linear-gradient(135deg, #8ca77b, #678756, #3e5f4a) !important;
+            color: var(--text-light) !important;
+        }
+
+        aside a {
+            color: var(--forest) !important;
+            transition: var(--transition);
+        }
+
+        aside a:hover {
+            background: rgba(138,167,123,0.12) !important;
+        }
+
+        .bg-white,
         .bg-surface,
         .bg-surface-container,
         .bg-surface-container-low,
         .bg-surface-container-high,
         .bg-surface-container-lowest,
         .bg-primary-container {
-            background-color: var(--bg-card) !important;
+            background: var(--card-bg) !important;
+            border: 1px solid rgba(215,180,106,0.22) !important;
+            border-radius: 30px !important;
+            box-shadow: var(--shadow-soft) !important;
+        }
+
+        .shadow-sm, .shadow-lg {
+            box-shadow: var(--shadow-soft) !important;
+        }
+
+        .rounded-xl {
+            border-radius: 30px !important;
+        }
+
+        .text-slate-text,
+        .text-on-surface,
+        .text-on-surface-variant,
+        .text-primary,
+        .text-on-surface-variant {
+            color: var(--text-secondary) !important;
+        }
+
+        .text-headline-lg,
+        .text-headline-md,
+        .font-bold {
+            color: var(--deep-forest) !important;
+        }
+
+        .shadow-sm,
+        .shadow-lg,
+        .shadow {
+            box-shadow: var(--shadow-soft) !important;
+        }
+
+        .p-unit-6,
+        .p-unit-8,
+        .px-gutter,
+        .py-unit-3 {
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-card {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: radial-gradient(circle at top left, rgba(234,216,167,0.12), transparent 25%), radial-gradient(circle at bottom right, rgba(140,167,123,0.1), transparent 20%);
+            pointer-events: none;
+        }
+
+        .hero-card .bg-cover {
+            min-height: 28rem;
+            background: linear-gradient(180deg, rgba(255,255,255,0.6), rgba(255,255,255,0.2)), url('https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80');
+            background-size: cover;
+            background-position: center;
+        }
+
+        .hero-card .bg-cover::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, rgba(250,242,228,0.4), rgba(255,255,255,0.1) 45%, rgba(46,52,45,0.22));
+            mix-blend-mode: multiply;
+        }
+
+        .weather-summary p,
+        .weather-summary h1,
+        .weather-summary h2,
+        .weather-summary h3,
+        .weather-summary span {
+            position: relative;
+            z-index: 1;
+        }
+
+        .detail-pill,
+        .status-pill,
+        .forecast-row,
+        .hourly-card,
+        .weather-card-grid > div,
+        .bg-white {
+            background: rgba(255,255,255,0.65) !important;
+            backdrop-filter: blur(16px) !important;
+            border: 1px solid rgba(215,180,106,0.22) !important;
+        }
+
+        .detail-pill,
+        .status-pill {
+            box-shadow: inset 0 0 0 1px rgba(255,255,255,0.15);
+        }
+
+        .text-body-sm,
+        .text-label-caps,
+        .text-body-lg,
+        .text-headline-sm {
+            color: var(--text-secondary) !important;
+        }
+
+        .text-headline-lg {
+            font-family: 'Cormorant Garamond', serif !important;
+        }
+
+        .font-headline-md,
+        .font-headline-lg,
+        .font-label-caps {
+            font-family: 'Cormorant Garamond', serif !important;
+        }
+
+        .font-body-sm,
+        .font-body-lg,
+        .font-display-temp {
+            font-family: 'Inter', sans-serif !important;
+        }
+
+        .group:hover .group-hover\:text-primary,
+        .group:hover .group-hover\:bg-surface-container {
+            color: var(--deep-forest) !important;
+            background: rgba(138,167,123,0.16) !important;
+        }
+
+        .border-outline-variant,
+        .border-outline,
+        .border-b,
+        .border-t,
+        .border-r,
+        .border-l {
+            border-color: rgba(215,180,106,0.28) !important;
+        }
+
+        .bg-warning-orange {
+            background: linear-gradient(135deg, #8ca77b, #678756, #3e5f4a) !important;
+            color: var(--text-light) !important;
+        }
+
+        .text-warning-orange,
+        .text-error {
+            color: var(--wine) !important;
+        }
+
+        .text-on-primary-container {
+            color: var(--text-light) !important;
+        }
+
+        .hourly-scroll {
+            scrollbar-width: none;
+        }
+
+        .hourly-scroll::-webkit-scrollbar {
+            display: none;
+        }
+
+        .footer,
+        footer {
+            background: rgba(250,247,241,0.8) !important;
+            border-top: 1px solid rgba(215,180,106,0.24) !important;
+        }
+
+        .bottom-navbar,
+        nav.md\:hidden {
+            background: rgba(250,247,241,0.9) !important;
+            border-top: 1px solid rgba(215,180,106,0.24) !important;
+        }
+
+        .weather-grid-2,
+        .weather-grid-3,
+        .grid-cols-1,
+        .grid-cols-3 {
+            gap: 1.25rem;
+        }
+
+        .text-label-caps {
+            letter-spacing: 0.16em !important;
+        }
+
+        .icon-glow {
+            color: var(--gold) !important;
+            filter: drop-shadow(0 0 8px rgba(215,180,106,0.30));
         }
     </style>
 </head>
 <body class="bg-background-alt text-on-surface">
+<div class="page-shell">
+    <div class="fog-layer"></div>
+    <div class="particle" style="top: 12%; left: 10%; animation-duration: 28s;"></div>
+    <div class="particle" style="top: 36%; left: 82%; animation-duration: 20s; opacity: 0.16;"></div>
+    <div class="particle" style="top: 64%; left: 24%; animation-duration: 24s; opacity: 0.12;"></div>
+    <div class="particle" style="top: 82%; left: 55%; animation-duration: 30s; opacity: 0.18;"></div>
 <!-- TopAppBar -->
 <header class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-gutter py-unit-3 max-w-container-max mx-auto bg-surface shadow-sm dark:bg-inverse-surface dark:shadow-none">
 <div class="flex items-center gap-unit-4">
-<span class="text-headline-md font-headline-md font-bold text-primary dark:text-inverse-primary">Sakarya Weather</span>
+<span class="text-headline-md font-headline-md font-bold text-primary dark:text-inverse-primary">The Weather Tome</span>
 <nav class="hidden md:flex gap-unit-6 ml-unit-8">
-<a class="text-primary dark:text-inverse-primary font-bold border-b-2 border-primary text-label-caps font-label-caps py-1" href="#">Dashboard</a>
-<a class="text-on-surface-variant dark:text-on-secondary-fixed-variant hover:bg-surface-container dark:hover:bg-on-surface-variant transition-colors text-label-caps font-label-caps py-1" href="#">Maps</a>
-<a class="text-on-surface-variant dark:text-on-secondary-fixed-variant hover:bg-surface-container dark:hover:bg-on-surface-variant transition-colors text-label-caps font-label-caps py-1" href="#">Air Quality</a>
+<a class="text-primary dark:text-inverse-primary font-bold border-b-2 border-primary text-label-caps font-label-caps py-1 active" href="#">Tome</a>
+<a class="text-on-surface-variant dark:text-on-secondary-fixed-variant hover:bg-surface-container dark:hover:bg-on-surface-variant transition-colors text-label-caps font-label-caps py-1" href="#">Herbarium</a>
+<a class="text-on-surface-variant dark:text-on-secondary-fixed-variant hover:bg-surface-container dark:hover:bg-on-surface-variant transition-colors text-label-caps font-label-caps py-1" href="#">Aether</a>
 </nav>
 </div>
 <div class="flex items-center gap-unit-4">
@@ -157,26 +456,26 @@
 <span class="material-symbols-outlined text-on-primary-container" data-icon="cloud">cloud</span>
 </div>
 <div>
-<p class="text-headline-md font-headline-md text-primary leading-tight">Sakarya Metro</p>
-<p class="text-label-caps font-label-caps text-on-surface-variant">Local Forecast</p>
+<p class="text-headline-md font-headline-md text-primary leading-tight">Forest Grimoire</p>
+<p class="text-label-caps font-label-caps text-on-surface-variant">Herbal Weather Ledger</p>
 </div>
 </div>
 <nav class="flex-1 flex flex-col gap-unit-2">
 <a class="flex items-center gap-unit-3 bg-primary-container text-on-primary-container rounded-lg px-unit-4 py-unit-3 translate-x-1 duration-200" href="#">
 <span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
-<span class="text-label-caps font-label-caps">Dashboard</span>
+<span class="text-label-caps font-label-caps">Tome</span>
 </a>
 <a class="flex items-center gap-unit-3 text-on-surface-variant hover:bg-surface-container-high px-unit-4 py-unit-3 rounded-lg transition-all" href="#">
 <span class="material-symbols-outlined" data-icon="map">map</span>
-<span class="text-label-caps font-label-caps">Maps</span>
+<span class="text-label-caps font-label-caps">Herbarium</span>
 </a>
 <a class="flex items-center gap-unit-3 text-on-surface-variant hover:bg-surface-container-high px-unit-4 py-unit-3 rounded-lg transition-all" href="#">
 <span class="material-symbols-outlined" data-icon="air">air</span>
-<span class="text-label-caps font-label-caps">Air Quality</span>
+<span class="text-label-caps font-label-caps">Aether</span>
 </a>
 <a class="flex items-center gap-unit-3 text-on-surface-variant hover:bg-surface-container-high px-unit-4 py-unit-3 rounded-lg transition-all" href="#">
 <span class="material-symbols-outlined" data-icon="history">history</span>
-<span class="text-label-caps font-label-caps">History</span>
+<span class="text-label-caps font-label-caps">Lore</span>
 </a>
 </nav>
 <button class="mt-auto bg-warning-orange text-white py-unit-3 rounded-xl font-bold flex items-center justify-center gap-unit-2 hover:opacity-90 transition-opacity">
