@@ -500,12 +500,14 @@ class WeatherApp {
     constructor() {
         this.apiBase = 'https://api.open-meteo.com/v1/forecast';
         this.geocodeBase = 'https://geocoding-api.open-meteo.com/v1/search';
+        this.openWeatherApiKey = 'REPLACE_WITH_YOUR_OPENWEATHER_API_KEY';
         this.currentLocation = {
             name: 'Adapazarı, Sakarya',
             lat: 40.7833,
             lon: 30.4000
         };
         this.weatherData = null;
+        this.airQualityData = null;
         this.selectedIndex = -1;
         this.init();
     }
@@ -533,6 +535,7 @@ class WeatherApp {
             latitude: lat,
             longitude: lon,
             current_weather: 'true',
+            past_days: 10,
             hourly: 'temperature_2m,relative_humidity_2m,wind_speed_10m,apparent_temperature,weathercode',
             daily: 'temperature_2m_max,temperature_2m_min,precipitation_sum,weathercode,sunrise,sunset,moonphase',
             timezone: 'auto'
@@ -548,17 +551,20 @@ class WeatherApp {
     }
 
     async fetchAirQuality(lat, lon) {
-        const airQualityUrl = new URL('https://air-quality-api.open-meteo.com/v1/air-quality');
-        airQualityUrl.search = new URLSearchParams({
-            latitude: lat,
-            longitude: lon,
-            hourly: 'pm10,pm2_5,nitrogen_dioxide,ozone',
-            timezone: 'auto'
+        if (!this.openWeatherApiKey || this.openWeatherApiKey.includes('REPLACE_WITH')) {
+            return null;
+        }
+
+        const url = new URL('https://api.openweathermap.org/data/2.5/air_pollution/forecast');
+        url.search = new URLSearchParams({
+            lat,
+            lon,
+            appid: this.openWeatherApiKey
         });
 
-        const response = await fetch(airQualityUrl);
+        const response = await fetch(url);
         if (!response.ok) {
-            throw new Error(`Air Quality API error: ${response.status}`);
+            throw new Error(`OpenWeather Air Quality API error: ${response.status}`);
         }
 
         return await response.json();
@@ -824,9 +830,23 @@ class WeatherApp {
             const dayName = i === 0 ? 'Today' : days[date.getDay()].substring(0, 3);
             const high = Math.round(daily.temperature_2m_max[i]);
             const low = Math.round(daily.temperature_2m_min[i]);
+            const weathercode = daily.weathercode[i];
+            const iconName = this.weatherCodeToIcon(weathercode);
+            const description = this.weatherCodeToSummary(weathercode);
 
             const dayElement = row.querySelector('.forecast-day');
             if (dayElement) dayElement.textContent = dayName;
+
+            const iconElement = row.querySelector('.material-symbols-outlined');
+            if (iconElement) {
+                iconElement.textContent = iconName;
+                iconElement.dataset.icon = iconName;
+            }
+
+            const descriptionElement = row.querySelector('.text-body-sm');
+            if (descriptionElement) {
+                descriptionElement.textContent = description;
+            }
 
             const highElement = row.querySelector('.forecast-high');
             if (highElement) highElement.textContent = `${high}°`;
@@ -840,17 +860,28 @@ class WeatherApp {
         const statusElement = document.getElementById('air-quality-status');
         const summaryElement = document.getElementById('air-quality-summary');
         const valueElement = document.getElementById('air-quality-value');
-        if (!this.airQualityData || !statusElement || !summaryElement || !valueElement) return;
+        if (!statusElement || !summaryElement || !valueElement) return;
 
-        const hourly = this.airQualityData.hourly;
-        const nowIndex = this.findCurrentHourIndex(hourly);
-        const pm25 = hourly.pm2_5[nowIndex];
+        if (!this.airQualityData || !this.airQualityData.list || this.airQualityData.list.length === 0) {
+            statusElement.textContent = 'Unavailable';
+            statusElement.className = 'text-headline-lg font-headline-lg text-on-surface-variant';
+            summaryElement.textContent = 'Air quality data is not available for this location.';
+            valueElement.textContent = '--';
+            return;
+        }
 
-        const aqi = this.getAirQualityCategory(pm25);
+        const now = Date.now() / 1000;
+        const nearest = this.airQualityData.list.reduce((closest, item) => {
+            return Math.abs(item.dt - now) < Math.abs(closest.dt - now) ? item : closest;
+        }, this.airQualityData.list[0]);
+
+        const aqi = this.getAqiCategory(nearest.main.aqi);
+        const pm25 = nearest.components.pm2_5;
+
         statusElement.textContent = aqi.label;
-        statusElement.className = `text-headline-lg font-headline-lg text-on-surface ${aqi.colorClass}`;
+        statusElement.className = `text-headline-lg font-headline-lg ${aqi.colorClass}`;
         summaryElement.textContent = aqi.message;
-        valueElement.textContent = `${Math.round(pm25)} μg/m³`;
+        valueElement.textContent = pm25 != null ? `${Math.round(pm25)} μg/m³` : '--';
     }
 
     updateSunMoon() {
@@ -897,23 +928,34 @@ class WeatherApp {
         return 'cloud';
     }
 
-    getAirQualityCategory(pm25) {
-        if (pm25 == null || Number.isNaN(pm25)) {
-            return { label: 'Unknown', message: 'Air quality data unavailable.', colorClass: 'text-on-surface-variant' };
+    weatherCodeToSummary(code) {
+        if (code === 0) return 'Clear skies';
+        if (code === 1 || code === 2) return 'Partly cloudy';
+        if (code === 3) return 'Overcast';
+        if (code === 45 || code === 48) return 'Foggy conditions';
+        if ([51, 53, 55].includes(code)) return 'Light rain';
+        if ([61, 63, 65].includes(code)) return 'Rain showers';
+        if ([71, 73, 75, 77].includes(code)) return 'Snowy';
+        if ([80, 81, 82].includes(code)) return 'Rain with possible storms';
+        if ([85, 86].includes(code)) return 'Snow showers';
+        if ([95, 96, 99].includes(code)) return 'Thunderstorms';
+        return 'Mixed conditions';
+    }
+
+    getAqiCategory(aqi) {        switch (aqi) {
+            case 1:
+                return { label: 'Good', message: 'Air quality is good. Perfect for outdoor plans.', colorClass: 'text-primary' };
+            case 2:
+                return { label: 'Fair', message: 'Air quality is acceptable. Sensitive people should take care.', colorClass: 'text-warning-orange' };
+            case 3:
+                return { label: 'Moderate', message: 'Air quality is moderate. Some may experience discomfort.', colorClass: 'text-warning-orange' };
+            case 4:
+                return { label: 'Poor', message: 'Air quality is poor. Reduce extended outdoor exposure.', colorClass: 'text-error' };
+            case 5:
+                return { label: 'Very Poor', message: 'Air quality is very poor. Avoid outdoor activity.', colorClass: 'text-error' };
+            default:
+                return { label: 'Unknown', message: 'Air quality data unavailable.', colorClass: 'text-on-surface-variant' };
         }
-        if (pm25 <= 12) {
-            return { label: 'Good', message: 'Air quality is good. Perfect for outdoor plans.', colorClass: 'text-primary' };
-        }
-        if (pm25 <= 35.4) {
-            return { label: 'Moderate', message: 'Air quality is acceptable for most people.', colorClass: 'text-warning-orange' };
-        }
-        if (pm25 <= 55.4) {
-            return { label: 'Unhealthy for Sensitive Groups', message: 'Sensitive people should reduce prolonged outdoor exertion.', colorClass: 'text-warning-orange' };
-        }
-        if (pm25 <= 150.4) {
-            return { label: 'Unhealthy', message: 'Everyone may begin to experience health effects.', colorClass: 'text-warning-orange' };
-        }
-        return { label: 'Very Unhealthy', message: 'Avoid outdoor activities and seek clean air.', colorClass: 'text-error' };
     }
 
     getMoonPhaseName(phase) {
