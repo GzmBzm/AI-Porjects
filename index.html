@@ -926,7 +926,7 @@ class WeatherApp {
 
         searchInput.addEventListener('keydown', (e) => {
             const items = suggestionsContainer.querySelectorAll('div[data-suggestion]');
-            
+
             if (e.key === 'ArrowDown') {
                 e.preventDefault();
                 this.selectedIndex = Math.min(this.selectedIndex + 1, items.length - 1);
@@ -935,9 +935,52 @@ class WeatherApp {
                 e.preventDefault();
                 this.selectedIndex = Math.max(this.selectedIndex - 1, -1);
                 updateSelection();
-            } else if (e.key === 'Enter' && this.selectedIndex >= 0) {
+            } else if (e.key === 'Enter') {
                 e.preventDefault();
-                items[this.selectedIndex].click();
+                // If a suggestion is actively selected, use it
+                if (this.selectedIndex >= 0 && items[this.selectedIndex]) {
+                    items[this.selectedIndex].click();
+                    return;
+                }
+
+                // Otherwise, try to geocode the typed query and use the first result
+                const query = searchInput.value.trim();
+                if (!query) return;
+
+                suggestionsContainer.innerHTML = '<div class="p-3 text-on-surface-variant">Searching...</div>';
+                suggestionsContainer.style.display = 'block';
+
+                this.geocodeLocation(query)
+                    .then(results => {
+                        if (!results || results.length === 0) {
+                            suggestionsContainer.innerHTML = '<div class="p-3 text-on-surface-variant">No locations found</div>';
+                            setTimeout(() => { suggestionsContainer.style.display = 'none'; }, 1200);
+                            throw new Error('No geocode results');
+                        }
+
+                        const result = results[0];
+                        let locationName = result.name;
+                        if (result.admin1 && result.admin1 !== result.name) locationName += `, ${result.admin1}`;
+                        if (result.country) locationName += `, ${result.country}`;
+
+                        this.currentLocation = { name: locationName, lat: result.latitude, lon: result.longitude };
+                        searchInput.value = this.currentLocation.name;
+                        suggestionsContainer.style.display = 'none';
+
+                        return Promise.all([
+                            this.fetchWeather(this.currentLocation.lat, this.currentLocation.lon),
+                            this.fetchAirQuality(this.currentLocation.lat, this.currentLocation.lon)
+                        ]);
+                    })
+                    .then(([weatherData, airQualityData]) => {
+                        this.weatherData = weatherData;
+                        this.airQualityData = airQualityData;
+                        this.updateUI();
+                    })
+                    .catch(err => {
+                        if (err && err.message !== 'No geocode results') console.error('Search/Geocode failed:', err);
+                        // show a friendly message without stopping the app
+                    });
             } else if (e.key === 'Escape') {
                 suggestionsContainer.style.display = 'none';
                 this.selectedIndex = -1;
@@ -1011,6 +1054,8 @@ class WeatherApp {
                 };
                 input.value = this.currentLocation.name;
                 container.style.display = 'none';
+                this.selectedIndex = -1;
+                input.blur();
 
                 Promise.all([
                     this.fetchWeather(this.currentLocation.lat, this.currentLocation.lon),
