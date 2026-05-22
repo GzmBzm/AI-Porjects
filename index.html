@@ -14,56 +14,31 @@
         theme: {
           extend: {
             "colors": {
-                    "secondary-container": "#cfe2f9",
-                    "primary-fixed": "#c6e7ff",
-                    "on-background": "#181c1c",
-                    "on-secondary-fixed-variant": "#36485b",
-                    "on-primary-fixed": "#001e2d",
-                    "inverse-on-surface": "#eef1f0",
-                    "outline": "#6e7881",
-                    "on-primary": "#ffffff",
-                    "on-surface": "#181c1c",
-                    "on-tertiary-container": "#572f00",
-                    "warning-orange": "#F05514",
-                    "surface-tint": "#00658d",
-                    "error": "#ba1a1a",
-                    "surface": "#f7faf9",
+                    "background": "#f3f0e8",
+                    "background-alt": "#ece7dc",
+                    "surface": "#faf7f1",
+                    "surface-container": "#f3efe7",
+                    "surface-container-low": "#ece7dc",
+                    "surface-container-high": "#f6f1e6",
+                    "surface-container-highest": "#ffffff",
+                    "primary": "#678756",
+                    "primary-container": "#8ca77b",
+                    "on-primary": "#faf7f1",
+                    "on-surface": "#2e342d",
+                    "on-surface-variant": "#5f665c",
+                    "text-primary": "#2e342d",
+                    "text-secondary": "#5f665c",
+                    "on-background": "#2e342d",
+                    "outline": "#d8d2c6",
+                    "outline-variant": "#d8d2c6",
+                    "warning-orange": "#d7b46a",
+                    "error": "#7a2f35",
+                    "surface-tint": "#8ca77b",
+                    "slate-text": "#2e342d",
+                    "white": "#ffffff",
                     "on-error": "#ffffff",
-                    "surface-container": "#ebeeed",
-                    "inverse-primary": "#82cfff",
-                    "surface-variant": "#e0e3e2",
-                    "background-alt": "#F4F7F6",
-                    "primary-container": "#00aeef",
-                    "primary-fixed-dim": "#82cfff",
-                    "error-container": "#ffdad6",
-                    "tertiary-container": "#ea8c21",
-                    "inverse-surface": "#2d3131",
-                    "surface-container-highest": "#e0e3e2",
-                    "on-tertiary-fixed": "#2d1600",
-                    "tertiary-fixed": "#ffdcc0",
-                    "secondary-fixed-dim": "#b5c8df",
-                    "secondary": "#4e6073",
-                    "surface-container-low": "#f1f4f3",
-                    "secondary-fixed": "#d1e4fb",
-                    "on-tertiary-fixed-variant": "#6b3b00",
-                    "outline-variant": "#bdc8d1",
-                    "tertiary-fixed-dim": "#ffb876",
-                    "surface-bright": "#f7faf9",
-                    "primary": "#00658d",
-                    "tertiary": "#8d4f00",
-                    "on-error-container": "#93000a",
-                    "on-secondary-fixed": "#091d2e",
-                    "on-secondary": "#ffffff",
-                    "surface-container-lowest": "#ffffff",
-                    "slate-text": "#2C3E50",
-                    "white": "#FFFFFF",
-                    "surface-dim": "#d7dbda",
-                    "on-surface-variant": "#3e4850",
-                    "on-secondary-container": "#526478",
-                    "on-primary-container": "#003e58",
-                    "background": "#f7faf9",
-                    "surface-container-high": "#e6e9e8",
-                    "on-primary-fixed-variant": "#004c6b",
+                    "on-secondary": "#2e342d",
+                    "on-secondary-variant": "#5f665c",
                     "on-tertiary": "#ffffff"
             },
             "borderRadius": {
@@ -109,12 +84,49 @@
       }
     </script>
 <style>
+        :root {
+            --bg-main: #f3f0e8;
+            --bg-accent: rgba(255,255,255,0.45);
+            --bg-card: rgba(255,255,255,0.72);
+            --text-primary: #2e342d;
+            --text-secondary: #5f665c;
+            --text-muted: #8b8f84;
+            --shadow-soft: 0 10px 30px rgba(62, 95, 74, 0.08);
+            --shadow-dreamy: 0 10px 30px rgba(62, 95, 74, 0.14);
+        }
+
         .material-symbols-outlined {
             font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
         }
+
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #F4F7F6;
+            background: linear-gradient(rgba(255,255,255,0.25), rgba(255,255,255,0.15)), var(--bg-main);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(circle at top right, rgba(140,167,123,0.08), transparent 30%), radial-gradient(circle at bottom left, rgba(122,47,53,0.06), transparent 30%);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        header,
+        aside,
+        main,
+        footer,
+        .bg-surface,
+        .bg-surface-container,
+        .bg-surface-container-low,
+        .bg-surface-container-high,
+        .bg-surface-container-lowest,
+        .bg-primary-container {
+            background-color: var(--bg-card) !important;
         }
     </style>
 </head>
@@ -374,10 +386,12 @@
 <h3 class="text-label-caps font-label-caps text-on-surface-variant">Air Quality Index</h3>
 <span class="material-symbols-outlined text-warning-orange" data-icon="air">air</span>
 </div>
-<p class="text-headline-lg font-headline-lg text-warning-orange mb-unit-2">Poor</p>
-<p class="text-body-sm font-body-sm text-on-surface-variant leading-relaxed">
-                            High level of pollution. Unhealthy for sensitive groups. Reduce outdoor time.
-                        </p>
+<p class="text-headline-lg font-headline-lg text-warning-orange mb-unit-2" id="air-quality-status">Loading...</p>
+<p class="text-body-sm font-body-sm text-on-surface-variant leading-relaxed" id="air-quality-summary">
+Loading current air quality data.
+</p>
+<p class="text-label-caps font-label-caps text-on-surface-variant mt-unit-4">PM2.5</p>
+<p class="text-headline-sm font-bold" id="air-quality-value">-- μg/m³</p>
 </div>
 <!-- Sun & Moon Widget -->
 <div class="bg-white rounded-xl shadow-sm p-unit-6">
@@ -391,55 +405,28 @@
 <span class="material-symbols-outlined text-warning-orange" data-icon="sunny">sunny</span>
 <span class="text-body-sm">Sunrise</span>
 </div>
-<span class="font-bold">5:42 AM</span>
+<span class="font-bold" id="sunrise-time">--</span>
 </div>
 <div class="flex justify-between items-center">
 <div class="flex items-center gap-unit-3">
 <span class="material-symbols-outlined text-primary" data-icon="wb_sunny">wb_sunny</span>
 <span class="text-body-sm">Sunset</span>
 </div>
-<span class="font-bold">8:08 PM</span>
+<span class="font-bold" id="sunset-time">--</span>
 </div>
 <div class="pt-unit-4 border-t border-surface-container-low flex justify-between items-center">
 <div class="flex items-center gap-unit-3">
 <span class="material-symbols-outlined text-slate-text" data-icon="nights_stay">nights_stay</span>
-<span class="text-body-sm">Moonrise</span>
+<span class="text-body-sm">Moon Phase</span>
 </div>
-<span class="font-bold">4:17 AM</span>
-</div>
-</div>
+<span class="font-bold" id="moon-phase">--</span>
 </div>
 </div>
 </div>
-<!-- Bento Section: Allergy Outlook & Featured News -->
-<div class="grid grid-cols-1 lg:grid-cols-12 gap-unit-6">
-<!-- Allergy Outlook -->
-<div class="lg:col-span-4 bg-white rounded-xl shadow-sm p-unit-6">
-<h2 class="text-headline-md font-headline-md text-slate-text mb-unit-6">Allergy Outlook</h2>
-<div class="space-y-unit-4">
-<div class="flex items-center justify-between">
-<div class="flex items-center gap-unit-3">
-<span class="material-symbols-outlined text-primary" data-icon="forest">forest</span>
-<span class="text-body-sm">Tree Pollen</span>
-</div>
-<span class="bg-green-100 text-green-700 px-unit-2 py-0.5 rounded text-label-caps font-label-caps">Low</span>
-</div>
-<div class="flex items-center justify-between">
-<div class="flex items-center gap-unit-3">
-<span class="material-symbols-outlined text-primary" data-icon="eco">eco</span>
-<span class="text-body-sm">Grass Pollen</span>
-</div>
-<span class="bg-green-100 text-green-700 px-unit-2 py-0.5 rounded text-label-caps font-label-caps">Low</span>
-</div>
-<div class="flex items-center justify-between">
-<div class="flex items-center gap-unit-3">
-<span class="material-symbols-outlined text-primary" data-icon="pets">pets</span>
-<span class="text-body-sm">Dust &amp; Dander</span>
-</div>
-<span class="bg-orange-100 text-orange-700 px-unit-2 py-0.5 rounded text-label-caps font-label-caps">High</span>
 </div>
 </div>
-</div>
+<!-- Bento Section: Featured News -->
+<div class="grid grid-cols-1 lg:grid-cols-8 gap-unit-6">
 <!-- Featured News Carousel-like Bento -->
 <div class="lg:col-span-8 grid grid-cols-1 md:grid-cols-2 gap-unit-4">
 <div class="bg-white rounded-xl shadow-sm overflow-hidden flex flex-col group cursor-pointer">
@@ -523,16 +510,20 @@ class WeatherApp {
         this.init();
     }
 
-    init() {
-        this.fetchWeather(this.currentLocation.lat, this.currentLocation.lon)
-            .then(data => {
-                this.weatherData = data;
-                this.updateUI();
-            })
-            .catch(error => {
-                console.error('Initial weather fetch failed:', error);
-                this.showError('Unable to load weather data. Please check your connection.');
-            });
+    async init() {
+        try {
+            const [weatherData, airQualityData] = await Promise.all([
+                this.fetchWeather(this.currentLocation.lat, this.currentLocation.lon),
+                this.fetchAirQuality(this.currentLocation.lat, this.currentLocation.lon)
+            ]);
+
+            this.weatherData = weatherData;
+            this.airQualityData = airQualityData;
+            this.updateUI();
+        } catch (error) {
+            console.error('Initial weather fetch failed:', error);
+            this.showError('Unable to load weather data. Please check your connection.');
+        }
 
         this.setupSearch();
     }
@@ -541,9 +532,9 @@ class WeatherApp {
         const params = new URLSearchParams({
             latitude: lat,
             longitude: lon,
-            current: 'temperature_2m,wind_speed_10m,relative_humidity_2m,apparent_temperature',
-            hourly: 'temperature_2m,relative_humidity_2m,wind_speed_10m',
-            daily: 'temperature_2m_max,temperature_2m_min,precipitation_sum,weather_code',
+            current_weather: 'true',
+            hourly: 'temperature_2m,relative_humidity_2m,wind_speed_10m,apparent_temperature,weathercode',
+            daily: 'temperature_2m_max,temperature_2m_min,precipitation_sum,weathercode,sunrise,sunset,moonphase',
             timezone: 'auto'
         });
 
@@ -551,6 +542,23 @@ class WeatherApp {
 
         if (!response.ok) {
             throw new Error(`Weather API error: ${response.status}`);
+        }
+
+        return await response.json();
+    }
+
+    async fetchAirQuality(lat, lon) {
+        const airQualityUrl = new URL('https://air-quality-api.open-meteo.com/v1/air-quality');
+        airQualityUrl.search = new URLSearchParams({
+            latitude: lat,
+            longitude: lon,
+            hourly: 'pm10,pm2_5,nitrogen_dioxide,ozone',
+            timezone: 'auto'
+        });
+
+        const response = await fetch(airQualityUrl);
+        if (!response.ok) {
+            throw new Error(`Air Quality API error: ${response.status}`);
         }
 
         return await response.json();
@@ -699,9 +707,13 @@ class WeatherApp {
                 input.value = this.currentLocation.name;
                 container.style.display = 'none';
 
-                this.fetchWeather(this.currentLocation.lat, this.currentLocation.lon)
-                    .then(data => {
-                        this.weatherData = data;
+                Promise.all([
+                    this.fetchWeather(this.currentLocation.lat, this.currentLocation.lon),
+                    this.fetchAirQuality(this.currentLocation.lat, this.currentLocation.lon)
+                ])
+                    .then(([weatherData, airQualityData]) => {
+                        this.weatherData = weatherData;
+                        this.airQualityData = airQualityData;
                         this.updateUI();
                     })
                     .catch(error => {
@@ -722,30 +734,34 @@ class WeatherApp {
         this.updateCurrentWeather();
         this.updateHourlyForecast();
         this.updateTenDayForecast();
+        this.updateAirQuality();
+        this.updateSunMoon();
         this.updateLocationDisplay();
     }
 
     updateCurrentWeather() {
-        const current = this.weatherData.current;
+        const current = this.weatherData.current_weather;
+        const hourly = this.weatherData.hourly;
+        const index = this.findCurrentHourIndex(hourly);
 
         const tempElement = document.getElementById('current-temperature');
         if (tempElement) {
-            tempElement.textContent = Math.round(current.temperature_2m);
+            tempElement.textContent = Math.round(current.temperature);
         }
 
         const windElement = document.getElementById('current-wind-speed');
         if (windElement) {
-            windElement.textContent = `${Math.round(current.wind_speed_10m)} km/h`;
+            windElement.textContent = `${Math.round(current.windspeed)} km/h`;
         }
 
         const humidityElement = document.getElementById('current-humidity');
-        if (humidityElement) {
-            humidityElement.textContent = `${Math.round(current.relative_humidity_2m)}%`;
+        if (humidityElement && hourly.relative_humidity_2m) {
+            humidityElement.textContent = `${Math.round(hourly.relative_humidity_2m[index])}%`;
         }
 
         const realFeelElement = document.getElementById('current-real-feel');
-        if (realFeelElement) {
-            realFeelElement.textContent = `RealFeel® ${Math.round(current.apparent_temperature)}°`;
+        if (realFeelElement && hourly.apparent_temperature) {
+            realFeelElement.textContent = `RealFeel® ${Math.round(hourly.apparent_temperature[index])}°`;
         }
 
         const timeElement = document.getElementById('current-time');
@@ -772,20 +788,21 @@ class WeatherApp {
         const existingCards = container.querySelectorAll('.hourly-card');
         existingCards.forEach(card => card.remove());
 
-        const now = new Date();
-        const currentHour = now.getHours();
+        const startIndex = this.findCurrentHourIndex(hourly);
+        const displayCount = Math.min(24, hourly.time.length - startIndex);
 
-        for (let i = 1; i <= 24; i++) {
-            const hourIndex = (currentHour + i) % 24;
+        for (let offset = 0; offset < displayCount; offset++) {
+            const hourIndex = startIndex + offset;
             const time = new Date(hourly.time[hourIndex]);
             const temp = Math.round(hourly.temperature_2m[hourIndex]);
-            const wind = Math.round(hourly.wind_speed_10m[hourIndex]);
+            const iconName = this.weatherCodeToIcon(hourly.weathercode[hourIndex]);
+            const label = offset === 0 ? 'NOW' : time.toLocaleTimeString('en-US', { hour: 'numeric', hour12: true });
 
             const card = document.createElement('div');
             card.className = 'flex-shrink-0 w-24 flex flex-col items-center p-unit-4 hover:bg-surface-container rounded-xl transition-colors hourly-card';
             card.innerHTML = `
-                <p class="text-label-caps font-label-caps text-on-surface-variant">${time.toLocaleTimeString('en-US', { hour: 'numeric', hour12: true })}</p>
-                <span class="material-symbols-outlined text-slate-text my-unit-2" data-icon="wb_sunny">wb_sunny</span>
+                <p class="text-label-caps font-label-caps text-on-surface-variant">${label}</p>
+                <span class="material-symbols-outlined text-primary my-unit-2">${iconName}</span>
                 <p class="text-body-lg font-bold">${temp}°</p>
             `;
 
@@ -819,11 +836,95 @@ class WeatherApp {
         }
     }
 
+    updateAirQuality() {
+        const statusElement = document.getElementById('air-quality-status');
+        const summaryElement = document.getElementById('air-quality-summary');
+        const valueElement = document.getElementById('air-quality-value');
+        if (!this.airQualityData || !statusElement || !summaryElement || !valueElement) return;
+
+        const hourly = this.airQualityData.hourly;
+        const nowIndex = this.findCurrentHourIndex(hourly);
+        const pm25 = hourly.pm2_5[nowIndex];
+
+        const aqi = this.getAirQualityCategory(pm25);
+        statusElement.textContent = aqi.label;
+        statusElement.className = `text-headline-lg font-headline-lg text-on-surface ${aqi.colorClass}`;
+        summaryElement.textContent = aqi.message;
+        valueElement.textContent = `${Math.round(pm25)} μg/m³`;
+    }
+
+    updateSunMoon() {
+        const daily = this.weatherData.daily;
+        if (!daily) return;
+
+        const sunriseElement = document.getElementById('sunrise-time');
+        const sunsetElement = document.getElementById('sunset-time');
+        const moonElement = document.getElementById('moon-phase');
+
+        if (sunriseElement) sunriseElement.textContent = daily.sunrise[0] ? new Date(daily.sunrise[0]).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }) : '--';
+        if (sunsetElement) sunsetElement.textContent = daily.sunset[0] ? new Date(daily.sunset[0]).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }) : '--';
+        if (moonElement) {
+            const phase = daily.moonphase && daily.moonphase[0] != null ? daily.moonphase[0] : null;
+            moonElement.textContent = phase != null ? this.getMoonPhaseName(phase) : 'Unavailable';
+        }
+    }
+
     updateLocationDisplay() {
         const locationElement = document.getElementById('current-location');
         if (locationElement) {
             locationElement.textContent = this.currentLocation.name;
         }
+    }
+
+    findCurrentHourIndex(hourly) {
+        const now = new Date();
+        return hourly.time.findIndex(timeString => {
+            const date = new Date(timeString);
+            return date.getFullYear() === now.getFullYear() &&
+                date.getMonth() === now.getMonth() &&
+                date.getDate() === now.getDate() &&
+                date.getHours() === now.getHours();
+        }) || 0;
+    }
+
+    weatherCodeToIcon(code) {
+        if (code === 0) return 'wb_sunny';
+        if (code === 1 || code === 2) return 'partly_cloudy_day';
+        if (code === 3 || code === 45 || code === 48) return 'cloud';
+        if ([51, 53, 55, 61, 63, 65, 80, 81, 82].includes(code)) return 'rainy';
+        if ([71, 73, 75, 77, 85, 86].includes(code)) return 'snowing';
+        if ([95, 96, 99].includes(code)) return 'thunderstorm';
+        return 'cloud';
+    }
+
+    getAirQualityCategory(pm25) {
+        if (pm25 == null || Number.isNaN(pm25)) {
+            return { label: 'Unknown', message: 'Air quality data unavailable.', colorClass: 'text-on-surface-variant' };
+        }
+        if (pm25 <= 12) {
+            return { label: 'Good', message: 'Air quality is good. Perfect for outdoor plans.', colorClass: 'text-primary' };
+        }
+        if (pm25 <= 35.4) {
+            return { label: 'Moderate', message: 'Air quality is acceptable for most people.', colorClass: 'text-warning-orange' };
+        }
+        if (pm25 <= 55.4) {
+            return { label: 'Unhealthy for Sensitive Groups', message: 'Sensitive people should reduce prolonged outdoor exertion.', colorClass: 'text-warning-orange' };
+        }
+        if (pm25 <= 150.4) {
+            return { label: 'Unhealthy', message: 'Everyone may begin to experience health effects.', colorClass: 'text-warning-orange' };
+        }
+        return { label: 'Very Unhealthy', message: 'Avoid outdoor activities and seek clean air.', colorClass: 'text-error' };
+    }
+
+    getMoonPhaseName(phase) {
+        if (phase <= 0.03 || phase >= 0.97) return 'New Moon';
+        if (phase <= 0.22) return 'Waxing Crescent';
+        if (phase <= 0.28) return 'First Quarter';
+        if (phase <= 0.47) return 'Waxing Gibbous';
+        if (phase <= 0.53) return 'Full Moon';
+        if (phase <= 0.72) return 'Waning Gibbous';
+        if (phase <= 0.78) return 'Last Quarter';
+        return 'Waning Crescent';
     }
 
     showError(message) {

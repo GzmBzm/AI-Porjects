@@ -11,23 +11,26 @@ class WeatherApp {
             lon: 30.4000
         };
         this.weatherData = null;
-        this.selectedIndex = -1; // Add as class property
+        this.airQualityData = null;
+        this.selectedIndex = -1;
         this.init();
     }
 
-    init() {
-        // Initialize with default location
-        this.fetchWeather(this.currentLocation.lat, this.currentLocation.lon)
-            .then(data => {
-                this.weatherData = data;
-                this.updateUI();
-            })
-            .catch(error => {
-                console.error('Initial weather fetch failed:', error);
-                this.showError('Unable to load weather data. Please check your connection.');
-            });
+    async init() {
+        try {
+            const [weatherData, airQualityData] = await Promise.all([
+                this.fetchWeather(this.currentLocation.lat, this.currentLocation.lon),
+                this.fetchAirQuality(this.currentLocation.lat, this.currentLocation.lon)
+            ]);
 
-        // Set up search functionality
+            this.weatherData = weatherData;
+            this.airQualityData = airQualityData;
+            this.updateUI();
+        } catch (error) {
+            console.error('Initial weather fetch failed:', error);
+            this.showError('Unable to load weather data. Please check your connection.');
+        }
+
         this.setupSearch();
     }
 
@@ -35,9 +38,9 @@ class WeatherApp {
         const params = new URLSearchParams({
             latitude: lat,
             longitude: lon,
-            current: 'temperature_2m,wind_speed_10m,relative_humidity_2m,apparent_temperature',
-            hourly: 'temperature_2m,relative_humidity_2m,wind_speed_10m',
-            daily: 'temperature_2m_max,temperature_2m_min,precipitation_sum,weather_code',
+            current_weather: 'true',
+            hourly: 'temperature_2m,relative_humidity_2m,wind_speed_10m,apparent_temperature,weathercode',
+            daily: 'temperature_2m_max,temperature_2m_min,precipitation_sum,weathercode,sunrise,sunset,moonphase',
             timezone: 'auto'
         });
 
@@ -45,6 +48,23 @@ class WeatherApp {
 
         if (!response.ok) {
             throw new Error(`Weather API error: ${response.status}`);
+        }
+
+        return await response.json();
+    }
+
+    async fetchAirQuality(lat, lon) {
+        const url = new URL('https://air-quality-api.open-meteo.com/v1/air-quality');
+        url.search = new URLSearchParams({
+            latitude: lat,
+            longitude: lon,
+            hourly: 'pm10,pm2_5,nitrogen_dioxide,ozone',
+            timezone: 'auto'
+        });
+
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error(`Air Quality API error: ${response.status}`);
         }
 
         return await response.json();
@@ -198,10 +218,13 @@ class WeatherApp {
                 input.value = this.currentLocation.name;
                 container.style.display = 'none';
 
-                // Fetch new weather data
-                this.fetchWeather(this.currentLocation.lat, this.currentLocation.lon)
-                    .then(data => {
-                        this.weatherData = data;
+                Promise.all([
+                    this.fetchWeather(this.currentLocation.lat, this.currentLocation.lon),
+                    this.fetchAirQuality(this.currentLocation.lat, this.currentLocation.lon)
+                ])
+                    .then(([weatherData, airQualityData]) => {
+                        this.weatherData = weatherData;
+                        this.airQualityData = airQualityData;
                         this.updateUI();
                     })
                     .catch(error => {
@@ -222,37 +245,36 @@ class WeatherApp {
         this.updateCurrentWeather();
         this.updateHourlyForecast();
         this.updateTenDayForecast();
+        this.updateAirQuality();
+        this.updateSunMoon();
         this.updateLocationDisplay();
     }
 
     updateCurrentWeather() {
-        const current = this.weatherData.current;
+        const current = this.weatherData.current_weather;
+        const hourly = this.weatherData.hourly;
+        const index = this.findCurrentHourIndex(hourly);
 
-        // Update temperature
         const tempElement = document.getElementById('current-temperature');
         if (tempElement) {
-            tempElement.textContent = Math.round(current.temperature_2m);
+            tempElement.textContent = Math.round(current.temperature);
         }
 
-        // Update wind speed
         const windElement = document.getElementById('current-wind-speed');
         if (windElement) {
-            windElement.textContent = `${Math.round(current.wind_speed_10m)} km/h`;
+            windElement.textContent = `${Math.round(current.windspeed)} km/h`;
         }
 
-        // Update humidity
         const humidityElement = document.getElementById('current-humidity');
-        if (humidityElement) {
-            humidityElement.textContent = `${Math.round(current.relative_humidity_2m)}%`;
+        if (humidityElement && hourly.relative_humidity_2m) {
+            humidityElement.textContent = `${Math.round(hourly.relative_humidity_2m[index])}%`;
         }
 
-        // Update RealFeel (apparent temperature)
         const realFeelElement = document.getElementById('current-real-feel');
-        if (realFeelElement) {
-            realFeelElement.textContent = `RealFeel® ${Math.round(current.apparent_temperature)}°`;
+        if (realFeelElement && hourly.apparent_temperature) {
+            realFeelElement.textContent = `RealFeel® ${Math.round(hourly.apparent_temperature[index])}°`;
         }
 
-        // Update time
         const timeElement = document.getElementById('current-time');
         if (timeElement) {
             const now = new Date();
@@ -274,25 +296,24 @@ class WeatherApp {
         const container = document.getElementById('hourly-forecast-container');
         if (!container) return;
 
-        // Clear existing cards except the first one (NOW)
         const existingCards = container.querySelectorAll('.hourly-card');
         existingCards.forEach(card => card.remove());
 
-        // Get next 24 hours starting from current hour
-        const now = new Date();
-        const currentHour = now.getHours();
+        const startIndex = this.findCurrentHourIndex(hourly);
+        const displayCount = Math.min(24, hourly.time.length - startIndex);
 
-        for (let i = 1; i <= 24; i++) {
-            const hourIndex = (currentHour + i) % 24;
+        for (let offset = 0; offset < displayCount; offset++) {
+            const hourIndex = startIndex + offset;
             const time = new Date(hourly.time[hourIndex]);
             const temp = Math.round(hourly.temperature_2m[hourIndex]);
-            const wind = Math.round(hourly.wind_speed_10m[hourIndex]);
+            const iconName = this.weatherCodeToIcon(hourly.weathercode[hourIndex]);
+            const label = offset === 0 ? 'NOW' : time.toLocaleTimeString('en-US', { hour: 'numeric', hour12: true });
 
             const card = document.createElement('div');
             card.className = 'flex-shrink-0 w-24 flex flex-col items-center p-unit-4 hover:bg-surface-container rounded-xl transition-colors hourly-card';
             card.innerHTML = `
-                <p class="text-label-caps font-label-caps text-on-surface-variant">${time.toLocaleTimeString('en-US', { hour: 'numeric', hour12: true })}</p>
-                <span class="material-symbols-outlined text-slate-text my-unit-2" data-icon="wb_sunny">wb_sunny</span>
+                <p class="text-label-caps font-label-caps text-on-surface-variant">${label}</p>
+                <span class="material-symbols-outlined text-primary my-unit-2">${iconName}</span>
                 <p class="text-body-lg font-bold">${temp}°</p>
             `;
 
@@ -315,17 +336,47 @@ class WeatherApp {
             const high = Math.round(daily.temperature_2m_max[i]);
             const low = Math.round(daily.temperature_2m_min[i]);
 
-            // Update day name
             const dayElement = row.querySelector('.forecast-day');
             if (dayElement) dayElement.textContent = dayName;
 
-            // Update high temp
             const highElement = row.querySelector('.forecast-high');
             if (highElement) highElement.textContent = `${high}°`;
 
-            // Update low temp
             const lowElement = row.querySelector('.forecast-low');
             if (lowElement) lowElement.textContent = `${low}°`;
+        }
+    }
+
+    updateAirQuality() {
+        const statusElement = document.getElementById('air-quality-status');
+        const summaryElement = document.getElementById('air-quality-summary');
+        const valueElement = document.getElementById('air-quality-value');
+        if (!this.airQualityData || !statusElement || !summaryElement || !valueElement) return;
+
+        const hourly = this.airQualityData.hourly;
+        const nowIndex = this.findCurrentHourIndex(hourly);
+        const pm25 = hourly.pm2_5[nowIndex];
+
+        const aqi = this.getAirQualityCategory(pm25);
+        statusElement.textContent = aqi.label;
+        statusElement.className = `text-headline-lg font-headline-lg ${aqi.colorClass}`;
+        summaryElement.textContent = aqi.message;
+        valueElement.textContent = `${Math.round(pm25)} μg/m³`;
+    }
+
+    updateSunMoon() {
+        const daily = this.weatherData.daily;
+        if (!daily) return;
+
+        const sunriseElement = document.getElementById('sunrise-time');
+        const sunsetElement = document.getElementById('sunset-time');
+        const moonElement = document.getElementById('moon-phase');
+
+        if (sunriseElement) sunriseElement.textContent = daily.sunrise[0] ? new Date(daily.sunrise[0]).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }) : '--';
+        if (sunsetElement) sunsetElement.textContent = daily.sunset[0] ? new Date(daily.sunset[0]).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }) : '--';
+        if (moonElement) {
+            const phase = daily.moonphase && daily.moonphase[0] != null ? daily.moonphase[0] : null;
+            moonElement.textContent = phase != null ? this.getMoonPhaseName(phase) : 'Unavailable';
         }
     }
 
@@ -334,6 +385,57 @@ class WeatherApp {
         if (locationElement) {
             locationElement.textContent = this.currentLocation.name;
         }
+    }
+
+    findCurrentHourIndex(hourly) {
+        const now = new Date();
+        return hourly.time.findIndex(timeString => {
+            const date = new Date(timeString);
+            return date.getFullYear() === now.getFullYear() &&
+                date.getMonth() === now.getMonth() &&
+                date.getDate() === now.getDate() &&
+                date.getHours() === now.getHours();
+        }) || 0;
+    }
+
+    weatherCodeToIcon(code) {
+        if (code === 0) return 'wb_sunny';
+        if (code === 1 || code === 2) return 'partly_cloudy_day';
+        if (code === 3 || code === 45 || code === 48) return 'cloud';
+        if ([51, 53, 55, 61, 63, 65, 80, 81, 82].includes(code)) return 'rainy';
+        if ([71, 73, 75, 77, 85, 86].includes(code)) return 'snowing';
+        if ([95, 96, 99].includes(code)) return 'thunderstorm';
+        return 'cloud';
+    }
+
+    getAirQualityCategory(pm25) {
+        if (pm25 == null || Number.isNaN(pm25)) {
+            return { label: 'Unknown', message: 'Air quality data unavailable.', colorClass: 'text-on-surface-variant' };
+        }
+        if (pm25 <= 12) {
+            return { label: 'Good', message: 'Air quality is good. Perfect for outdoor plans.', colorClass: 'text-primary' };
+        }
+        if (pm25 <= 35.4) {
+            return { label: 'Moderate', message: 'Air quality is acceptable for most people.', colorClass: 'text-warning-orange' };
+        }
+        if (pm25 <= 55.4) {
+            return { label: 'Unhealthy for Sensitive Groups', message: 'Sensitive people should reduce prolonged outdoor exertion.', colorClass: 'text-warning-orange' };
+        }
+        if (pm25 <= 150.4) {
+            return { label: 'Unhealthy', message: 'Everyone may begin to experience health effects.', colorClass: 'text-warning-orange' };
+        }
+        return { label: 'Very Unhealthy', message: 'Avoid outdoor activities and seek clean air.', colorClass: 'text-error' };
+    }
+
+    getMoonPhaseName(phase) {
+        if (phase <= 0.03 || phase >= 0.97) return 'New Moon';
+        if (phase <= 0.22) return 'Waxing Crescent';
+        if (phase <= 0.28) return 'First Quarter';
+        if (phase <= 0.47) return 'Waxing Gibbous';
+        if (phase <= 0.53) return 'Full Moon';
+        if (phase <= 0.72) return 'Waning Gibbous';
+        if (phase <= 0.78) return 'Last Quarter';
+        return 'Waning Crescent';
     }
 
     showError(message) {
