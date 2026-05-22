@@ -829,17 +829,25 @@ class WeatherApp {
         this.setupSearch();
     }
 
-    async fetchWeather(lat, lon) {
-        const params = new URLSearchParams({
+    buildWeatherParams(lat, lon) {
+        return new URLSearchParams({
             latitude: lat,
             longitude: lon,
+            models: 'best_match',
             current_weather: 'true',
-            past_days: 10,
-            hourly: 'temperature_2m,relative_humidity_2m,wind_speed_10m,apparent_temperature,weathercode',
-            daily: 'temperature_2m_max,temperature_2m_min,precipitation_sum,weathercode,sunrise,sunset,moonphase',
-            timezone: 'auto'
+            hourly: 'temperature_2m,cloud_cover,cloud_cover_low,cloud_cover_high,cloud_cover_mid,visibility,snowfall,showers,rain,precipitation,precipitation_probability,apparent_temperature,dew_point_2m,relative_humidity_2m,wind_speed_10m,wind_speed_80m,wind_speed_120m,wind_speed_180m,wind_direction_10m,wind_direction_80m,wind_direction_120m,wind_direction_180m,wind_gusts_10m,temperature_80m,temperature_120m,temperature_180m,is_day,uv_index_clear_sky,uv_index,sunshine_duration,weathercode',
+            daily: 'weathercode,temperature_2m_min,temperature_2m_max,apparent_temperature_min,apparent_temperature_max,sunrise,sunset,daylight_duration,sunshine_duration,uv_index_max,uv_index_clear_sky_max,rain_sum,showers_sum,snowfall_sum,precipitation_sum,precipitation_hours,precipitation_probability_max,wind_speed_10m_max,wind_direction_10m_dominant,wind_gusts_10m_max,shortwave_radiation_sum',
+            minutely_15: 'sunshine_duration,rain,snowfall,temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,direct_radiation,is_day,weathercode,wind_speed_80m,wind_speed_10m,wind_direction_10m,wind_direction_80m,visibility,lightning_potential,wind_gusts_10m',
+            timezone: 'auto',
+            forecast_days: 14,
+            forecast_hours: 12,
+            past_hours: 6,
+            cell_selection: 'nearest'
         });
+    }
 
+    async fetchWeather(lat, lon) {
+        const params = this.buildWeatherParams(lat, lon);
         const response = await fetch(`${this.apiBase}?${params}`);
 
         if (!response.ok) {
@@ -1090,28 +1098,33 @@ class WeatherApp {
     }
 
     updateCurrentWeather() {
-        const current = this.weatherData.current_weather;
-        const hourly = this.weatherData.hourly;
+        const current = this.weatherData.current_weather || this.weatherData.current || {};
+        const hourly = this.weatherData.hourly || {};
         const index = this.findCurrentHourIndex(hourly);
+
+        const temp = current.temperature ?? current.temperature_2m ?? (hourly.temperature_2m?.[index] ?? 0);
+        const humidity = current.relative_humidity_2m ?? (hourly.relative_humidity_2m?.[index] ?? '--');
+        const apparent = current.apparent_temperature ?? (hourly.apparent_temperature?.[index] ?? '--');
+        const windSpeed = current.wind_speed_10m ?? (hourly.wind_speed_10m?.[index] ?? '--');
 
         const tempElement = document.getElementById('current-temperature');
         if (tempElement) {
-            tempElement.textContent = Math.round(current.temperature);
+            tempElement.textContent = typeof temp === 'number' ? Math.round(temp) : temp;
         }
 
         const windElement = document.getElementById('current-wind-speed');
         if (windElement) {
-            windElement.textContent = `${Math.round(current.windspeed)} km/h`;
+            windElement.textContent = typeof windSpeed === 'number' ? `${Math.round(windSpeed)} km/h` : `${windSpeed}`;
         }
 
         const humidityElement = document.getElementById('current-humidity');
-        if (humidityElement && hourly.relative_humidity_2m) {
-            humidityElement.textContent = `${Math.round(hourly.relative_humidity_2m[index])}%`;
+        if (humidityElement) {
+            humidityElement.textContent = typeof humidity === 'number' ? `${Math.round(humidity)}%` : `${humidity}`;
         }
 
         const realFeelElement = document.getElementById('current-real-feel');
-        if (realFeelElement && hourly.apparent_temperature) {
-            realFeelElement.textContent = `RealFeel® ${Math.round(hourly.apparent_temperature[index])}°`;
+        if (realFeelElement) {
+            realFeelElement.textContent = typeof apparent === 'number' ? `RealFeel® ${Math.round(apparent)}°` : `RealFeel® ${apparent}`;
         }
 
         const timeElement = document.getElementById('current-time');
